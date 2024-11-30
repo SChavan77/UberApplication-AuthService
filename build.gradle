@@ -36,10 +36,10 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core:10.19.0'
 	implementation 'org.flywaydb:flyway-mysql'
 	implementation 'org.springframework.boot:spring-boot-starter-security:3.4.0'
-	//implementation 'org.springframework.security:spring-security-config:6.4.1'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-
-	//implementation 'org.liquibase:liquibase-core:4.29.2'
 }
 
 tasks.named('test') {
