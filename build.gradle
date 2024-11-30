@@ -35,6 +35,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.flywaydb:flyway-core:10.19.0'
 	implementation 'org.flywaydb:flyway-mysql'
+	implementation 'org.springframework.boot:spring-boot-starter-security:3.4.0'
+	//implementation 'org.springframework.security:spring-security-config:6.4.1'
+
+
 	//implementation 'org.liquibase:liquibase-core:4.29.2'
 }
 
