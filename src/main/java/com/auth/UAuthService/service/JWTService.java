@@ -1,5 +1,6 @@
 package com.auth.UAuthService.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -10,9 +11,11 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Component
 public class JWTService implements CommandLineRunner {
@@ -28,42 +31,111 @@ public class JWTService implements CommandLineRunner {
      * This methos creates a brand new JWT token for us, based on the payload we get from client
      * @return
      */
-    private String createToken(Map<String,Object> payload, String userName){
+    private String createToken(Map<String,Object> payload, String email){
         Date now=new Date();
         Date expiryDate= new Date(now.getTime()+expiry*1000L); //sec->msec
 
-        SecretKey key= Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        //SecretKey key= Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
                 .claims(payload)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(expiryDate)
-                .subject(userName)
+                .subject(email)
                 //.signWith(SignatureAlgorithm.HS256, SECRET)
-                .signWith(key)
+                .signWith(getSecretKey())
                 .compact(); //create a string output & serializes
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        Map<String,Object> mp= new HashMap<>();
-        mp.put("name","Shankar");
-        mp.put("email","abc@gmail.com");
-        mp.put("id","13ABC");
-        String token = createToken(mp,"MyName");
-        System.out.println("generated Token is :---"+token);
-    }
 
     /*public SecretKey generateSecretKey(){ //One more way to do
         byte[] decode = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(decode);
     }*/
+
+
+    private Claims extractPayloads(String payload){
+       return Jwts
+                    .parser()
+                    .setSigningKey(getSecretKey())
+                    .build()
+                    .parseClaimsJws(payload)
+                    .getBody();
+    }
+
+
+    private Key getSecretKey(){
+        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private Boolean validateToken(String token, String email){
+        final String userEmailFetchedFromToken =extractEmail(token);
+        return (userEmailFetchedFromToken.equals(email) && !isTokenExpired(token));
+    }
+
+    public <T> T extractClaims(String token, Function<Claims,T> claimResolver){
+        Claims claims= extractPayloads(token);
+        return claimResolver.apply(claims); //calls getSubject() internally.
+
+    }
+
+    private Date extractExpirationFromPayload(String token){
+        return extractClaims(token, Claims::getExpiration);
+    }
+
+    /**
+     * This method checks if the token expiry was before the current time stamp or not?
+     * @param token JWT Token
+     * @return true if token is expired else false
+     */
+    private boolean isTokenExpired(String token){
+            return extractExpirationFromPayload(token).before(new Date());
+    }
+
+  //private String extractUserName(String token){
+    private String extractEmail(String token){
+        return extractClaims(token,Claims::getSubject);
+    }
+
+    private String extractPhoneNumber(String token){
+        Claims claim=extractPayloads(token);
+        String phNumber= (String)claim.get("phoneNumber");
+        return phNumber;
+    }
+
+    /**
+     * More Generic Method to extract particular field k->value
+     * @param token Access token received
+     * @param payloadKey Which field k
+     * @return Values of that payload field
+     *
+     * For Object type: See Map decl. We can type cast and return as toStrng() also.
+     * Change the method type as String that time.
+     */
+    private Object extractPayloadField(String token, String payloadKey){
+        Claims claim=extractPayloads(token);
+        return (Object)claim.get(payloadKey);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        Map<String,Object> mp= new HashMap<>();
+        mp.put("email","abc@gmail.com");
+        mp.put("phoneNumber","0123456789");
+        mp.put("id","13ABC");
+        String token = createToken(mp,"MyName");
+        System.out.println("generated Token is :---"+token);
+        System.out.println(extractPhoneNumber(token));
+    }
+
+
 }
-
-
 
 /*
 *
 * After JWT recieved by cleint and sent as a part of the request:
 * How to process further that JWT: All those functionality implemented here
+*
+*
+* Earlier: we made UserName as our Subject. Nowlet's make Email as our subject. And validate our tokens on that basis of email now.
 * */
