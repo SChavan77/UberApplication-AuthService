@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JWTService implements CommandLineRunner {
+public class JWTService /*implements CommandLineRunner*/ {
 
         @Value("${jwt.expiry}") //to read from application.properties file
         private int expiry;
@@ -31,12 +31,11 @@ public class JWTService implements CommandLineRunner {
      * This methos creates a brand new JWT token for us, based on the payload we get from client
      * @return
      */
-    private String createToken(Map<String,Object> payload, String email){
+    public String createToken(Map<String,Object> payload, String email){
         Date now=new Date();
         Date expiryDate= new Date(now.getTime()+expiry*1000L); //sec->msec
 
         //SecretKey key= Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
-
         return Jwts.builder()
                 .claims(payload)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -47,6 +46,11 @@ public class JWTService implements CommandLineRunner {
                 .compact(); //create a string output & serializes
     }
 
+    //Overriden: Create token with empty hashMap
+    public String createToken( String email){
+        return createToken(new HashMap<>(),email);
+    }
+
 
     /*public SecretKey generateSecretKey(){ //One more way to do
         byte[] decode = Decoders.BASE64.decode(SECRET);
@@ -54,7 +58,7 @@ public class JWTService implements CommandLineRunner {
     }*/
 
 
-    private Claims extractPayloads(String payload){
+    public Claims extractPayloads(String payload){
        return Jwts
                     .parser()
                     .setSigningKey(getSecretKey())
@@ -64,11 +68,11 @@ public class JWTService implements CommandLineRunner {
     }
 
 
-    private Key getSecretKey(){
+    public Key getSecretKey(){
         return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
-    private Boolean validateToken(String token, String email){
+    public Boolean validateToken(String token, String email){
         final String userEmailFetchedFromToken =extractEmail(token);
         return (userEmailFetchedFromToken.equals(email) && !isTokenExpired(token));
     }
@@ -79,7 +83,7 @@ public class JWTService implements CommandLineRunner {
 
     }
 
-    private Date extractExpirationFromPayload(String token){
+    public Date extractExpirationFromPayload(String token){
         return extractClaims(token, Claims::getExpiration);
     }
 
@@ -88,16 +92,16 @@ public class JWTService implements CommandLineRunner {
      * @param token JWT Token
      * @return true if token is expired else false
      */
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
             return extractExpirationFromPayload(token).before(new Date());
     }
 
-  //private String extractUserName(String token){
-    private String extractEmail(String token){
+  //public String extractUserName(String token){
+  public String extractEmail(String token){
         return extractClaims(token,Claims::getSubject);
     }
 
-    private String extractPhoneNumber(String token){
+    public String extractPhoneNumber(String token){
         Claims claim=extractPayloads(token);
         String phNumber= (String)claim.get("phoneNumber");
         return phNumber;
@@ -112,12 +116,12 @@ public class JWTService implements CommandLineRunner {
      * For Object type: See Map decl. We can type cast and return as toStrng() also.
      * Change the method type as String that time.
      */
-    private Object extractPayloadField(String token, String payloadKey){
+    public Object extractPayloadField(String token, String payloadKey){
         Claims claim=extractPayloads(token);
         return (Object)claim.get(payloadKey);
     }
 
-    @Override
+   /* @Override
     public void run(String... args) throws Exception {
         Map<String,Object> mp= new HashMap<>();
         mp.put("email","abc@gmail.com");
@@ -126,8 +130,7 @@ public class JWTService implements CommandLineRunner {
         String token = createToken(mp,"MyName");
         System.out.println("generated Token is :---"+token);
         System.out.println(extractPhoneNumber(token));
-    }
-
+    }*/
 
 }
 

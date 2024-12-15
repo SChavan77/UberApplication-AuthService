@@ -10,8 +10,15 @@ import java.util.Collection;
  * Spring security works on userDetails polymorphic type for Authentication.
  * So inherited UserDetails.
  * Here, we have implemented authentication against email.
+ * Here username refers to our unique identifies which is "Email"
+ * It is wrapper class
  */
 public class AuthRiderDetails extends Rider implements UserDetails  {
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
 
     /**
      * this is the unique field. but username is the standard word they use. We can pass email/username or whichever
