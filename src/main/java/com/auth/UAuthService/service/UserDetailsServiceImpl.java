@@ -1,8 +1,9 @@
 package com.auth.UAuthService.service;
 
 import com.auth.UAuthService.helpers.AuthRiderDetails;
-import com.auth.UAuthService.model.Rider;
+
 import com.auth.UAuthService.repository.RiderRepository;
+import com.library.models.Rider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

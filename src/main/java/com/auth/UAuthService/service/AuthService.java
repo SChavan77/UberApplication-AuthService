@@ -2,8 +2,9 @@ package com.auth.UAuthService.service;
 
 import com.auth.UAuthService.dto.RiderDto;
 import com.auth.UAuthService.dto.RiderSignUpRequestDto;
-import com.auth.UAuthService.model.Rider;
+
 import com.auth.UAuthService.repository.RiderRepository;
+import com.library.models.Rider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

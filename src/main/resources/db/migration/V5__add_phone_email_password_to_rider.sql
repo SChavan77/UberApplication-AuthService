@@ -1,4 +1,0 @@
-ALTER TABLE rider
-    ADD phone_number VARCHAR(255) NOT NULL,
-    ADD email VARCHAR(255) NOT NULL,
-    ADD password VARCHAR(255) NOT NULL;
