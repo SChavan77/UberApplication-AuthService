@@ -1,6 +1,6 @@
 package com.auth.UAuthService.dto;
 
-import com.auth.UAuthService.model.Rider;
+import com.library.models.Rider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

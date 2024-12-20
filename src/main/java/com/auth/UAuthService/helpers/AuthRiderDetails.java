@@ -1,6 +1,6 @@
 package com.auth.UAuthService.helpers;
 
-import com.auth.UAuthService.model.Rider;
+import com.library.models.Rider;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
